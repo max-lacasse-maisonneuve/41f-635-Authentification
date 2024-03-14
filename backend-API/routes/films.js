@@ -156,7 +156,7 @@ router.put(
  * Cette route permet de supprimer un film
  * @route DELETE /films/{id}
  */
-router.delete("/:id", [check("id").escape().trim().notEmpty().isString()], async (req, res) => {
+router.delete("/:id", auth, [check("id").escape().trim().notEmpty().isString()], async (req, res) => {
     try {
         const validation = validationResult(req);
         if (!validation.isEmpty()) {

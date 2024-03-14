@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db.js");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 
 // /**
@@ -91,6 +92,7 @@ router.post(
                 res.statusCode = 400;
                 res.json({ message: "Courriel déjà utilisé" });
             } else {
+                //TODO: à ajouter
                 const hash = await bcrypt.hash(motDePasse, 10);
                 const user = { courriel, mdp: hash };
                 const doc = await db.collection("utilisateurs").add(user);
@@ -137,7 +139,22 @@ router.post(
                 delete utilisateur.mdp;
 
                 if (resultatConnexion) {
-                    res.json(utilisateur);
+                    // Données à passer au front-end sur l'utilisateur
+                    const donneesJeton = {
+                        courriel:utilisateur.courriel,
+                        id: utilisateur.id,
+                    };
+
+                    // Options d'expirations
+                    const options = {
+                        expiresIn: "1d",
+                    };
+
+                    //Génération du jeton
+                    const jeton = jwt.sign(donneesJeton, process.env.JWT_SECRET, options);
+
+                    res.statusCode = 200;
+                    res.json(jeton);
                 } else {
                     res.statusCode = 400;
                     res.json({ message: "Mot de passe incorrect" });
