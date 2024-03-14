@@ -196,3 +196,69 @@ const handleDeconnexion = () => {
     setConnexion(false);
 };
 ```
+
+## Optimiser le passage des données avec UseContext
+
+Pour optimiser le passage des données dans le front-end, on peut utiliser le hook `useContext` de React. Cela permet de passer des données à travers plusieurs composants sans avoir à les passer en props à chaque composant.
+
+À la racine du projet, on crée un contexte qui contient les données à passer. On doit exporter ce contexte pour pouvoir l'utiliser dans d'autres composants.
+
+```javascript
+import React, { createContext, useState } from "react";
+
+export const AuthContext = createContext();
+```
+
+Pour l'utiliser, le contexte doit englober tous les composants qui ont besoin d'accéder aux données. Par exemple, autour du routeur principal, on ajoute un `Provider` qui contient les données à passer.
+
+Le provider possède une propriété `value` qui contient les données à passer. On peut passer des fonctions, des objets ou des variables.
+
+```javascript
+return (
+    <AppContext.Provider value={estConnecte}>
+        <Router>
+            <Entete handleLogin={login} />
+            <Routes>
+                <Route element={<PrivateRoute />}>
+                    <Route path="/admin" element={<FormFilms />} />
+                </Route>
+
+                <Route path="/" element={<Accueil />} />
+                <Route path="/film/:id" element={<Film />} />
+                <Route path="/liste-films" element={<ListeFilms />} />
+                <Route path="/*" element={<Accueil />} />
+            </Routes>
+        </Router>
+    </AppContext.Provider>
+);
+```
+
+## Utiliser le contexte dans un composant
+
+Pour utiliser le contexte dans un composant, on peut utiliser le hook `useContext` de React. Cela permet de récupérer les données passées par le contexte. On doit également importer l'objet contenant le contexte pour pouvoir l'utiliser.
+
+```javascript
+import React, { useContext } from "react";
+import { AppContext } from "../App/App";
+
+function Entete() {
+    const estConnecte = useContext(AppContext);
+    return (
+        <header>
+            <h1>Mon application</h1>
+            <nav>
+                {estConnecte ? (
+                    <NavLink to="/admin" className="underline">
+                        Admin
+                    </NavLink>
+                ) : (
+                    ""
+                )}
+                <NavLink to="/liste-films" className="underline">
+                    Liste des films
+                </NavLink>
+            </nav>
+        </header>
+    );
+}
+```
