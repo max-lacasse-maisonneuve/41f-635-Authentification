@@ -25,10 +25,11 @@ function App() {
     async function login(e) {
         //Si on est connecté et qu'on appuie sur le bouton
         console.log(estConnecte);
-        if (e.target.dataset.connexion == false) {
-            e.preventDefault();
-            const form = e.target;
 
+        e.preventDefault();
+        const form = e.target;
+        console.log("here");
+        if (form.dataset.connexion == "false") {
             const body = {
                 courriel: form.courriel.value,
                 mdp: form.mdp.value,
@@ -47,16 +48,16 @@ function App() {
             console.log(token);
 
             if (reponse.status === 200) {
+                console.log(token);
                 localStorage.setItem("api-film", token);
-                console.log(jetonValide());
+                setConnexion(true);
             }
             form.reset();
+        } else {
+            setConnexion(false);
+            localStorage.removeItem("api-film");
+            return;
         }
-        // else {
-        //     setConnexion(false);
-        //     localStorage.removeItem("api-film");
-        //     return;
-        // }
     }
 
     function jetonValide() {
