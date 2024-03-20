@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Entete from "../Entete/Entete";
 import Accueil from "../Accueil/Accueil";
+import FormFilm from "../FormFilm/FormFilm";
 import PrivateRoute from "../PrivateRoute/PrivateRoute";
 import Admin from "../Admin/Admin";
 import { jwtDecode } from "jwt-decode";
@@ -87,6 +88,7 @@ function App() {
                     <Route element={<PrivateRoute />}>
                         <Route path="/admin" element={<Admin />}></Route>
                     </Route>
+                    <Route path="/admin/ajout-film" element={<FormFilm />}></Route>
                     <Route path="/" element={<Accueil />} />
                 </Routes>
             </Router>

@@ -79,6 +79,7 @@ router.get("/:id", [check("id").escape().trim().notEmpty()], async (req, res) =>
  */
 router.post(
     "/",
+    auth,
     [
         check("titre").escape().trim().notEmpty().isString(),
         check("genres").escape().trim().exists().isArray(),
