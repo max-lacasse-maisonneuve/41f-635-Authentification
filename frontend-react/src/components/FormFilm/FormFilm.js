@@ -1,7 +1,20 @@
 import { useState } from "react";
 import "./FormFilm.css";
+import { useNavigate } from "react-router-dom";
 
 function FormFilm() {
+    const genres = [
+        "Action",
+        "Aventure",
+        "Comédie",
+        "Drame",
+        "Fantaisie",
+        "Horreur",
+        "Policier",
+        "Science-fiction",
+        "Thriller",
+        "Western",
+    ];
     const [formData, setFormData] = useState({
         titre: "",
         description: "",
@@ -12,6 +25,7 @@ function FormFilm() {
     });
 
     const [formValidity, setFormValidity] = useState("invalid");
+    const navigate = useNavigate();
     //ICI on pourrait utiliser le useState pour capter les messages d'erreurs
 
     function onFormDataChange(evenement) {
@@ -21,13 +35,41 @@ function FormFilm() {
         const value = evenement.target.value;
         // const{name, value} = evenement.target;
 
-        //On clone la donnee dans un nouvel objet
-        const donneeModifiee = { ...formData, [name]: value };
+        //Section uniquement pour les boites à cocher
+        if (name.startsWith("genre")) {
+            //On récupère l'état de la boite à cocher
+            const estCoche = evenement.target.checked;
+            let genres = formData.genres || [];
 
-        const estValide = evenement.target.form.checkValidity() ? "valid" : "invalid";
-        setFormValidity(estValide);
-        //On met à jour la donnée globale
-        setFormData(donneeModifiee);
+            //si on decoche et que la valeur est dans le tableau de notre objet film
+            if (!estCoche && genres.includes(value)) {
+                //créer un nouveau tableau sans la donnée décochée
+                genres = genres.filter((genre, index) => {
+                    //Si true, genre est ajouté au tableau, si false genre n'est pas ajouté au tableau
+                    return genre !== value;
+                });
+            } else if (estCoche && !genres.includes(value)) {
+                //Si on coche la boite et qu'elle n'est pas dans le tableau de l'objet film
+                //On ajoute
+                genres.push(value);
+            }
+            //On met à jour notre objet film
+            const donneeModifiee = { ...formData, genres: genres };
+            setFormData(donneeModifiee);
+        } else if (name === "titreVignette") {
+            const nomFichier = evenement.target.files[0].name;
+            const donneeModifiee = { ...formData, titreVignette: nomFichier };
+            // console.log(evenement.target, nomFichier);
+            setFormData(donneeModifiee);
+        } else {
+            //On clone la donnee dans un nouvel objet
+            const donneeModifiee = { ...formData, [name]: value };
+
+            const estValide = evenement.target.form.checkValidity() ? "valid" : "invalid";
+            setFormValidity(estValide);
+            //On met à jour la donnée globale
+            setFormData(donneeModifiee);
+        }
     }
 
     async function onFormSubmit(evenement) {
@@ -68,6 +110,7 @@ function FormFilm() {
             });
             //Reinit l'état de validité
             setFormValidity("invalid");
+            //navigate("/"); //Redirige vers une page en particulier
         } else {
             const messageErreur = response.message;
             console.log("erreur", messageErreur);
@@ -130,6 +173,34 @@ function FormFilm() {
                             minLength={1}
                             maxLength={10}
                         ></input>
+                    </div>
+                    <div className="input-group">
+                        <p>Genres</p>
+                        {genres.map((element, index) => {
+                            return (
+                                <div key={index}>
+                                    <input
+                                        type="checkbox"
+                                        id={element}
+                                        name={`genre-${element}`}
+                                        value={element}
+                                        onChange={onFormDataChange}
+                                        checked={formData.genres.includes(element)}
+                                    />
+                                    <label htmlFor={element}>{element}</label>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="titreVignette">Vignette</label>
+                        <input
+                            type="file"
+                            name="titreVignette"
+                            id="titreVignette"
+                            accept=".jpg,.jpeg,.png,.webp"
+                            onChange={onFormDataChange}
+                        />
                     </div>
                     <input
                         type="submit"
