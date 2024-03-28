@@ -23,12 +23,28 @@ function FormFilm() {
         genres: [],
         titreVignette: "vide.jpg",
     });
-
+    const [vignette, setVignette] = useState("");
     const [formValidity, setFormValidity] = useState("invalid");
     const navigate = useNavigate();
     //ICI on pourrait utiliser le useState pour capter les messages d'erreurs
 
-    function onFormDataChange(evenement) {
+    function getBase64(file) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        const resultat = new Promise((resolve, reject) => {
+            reader.onload = function () {
+                console.log(reader.result);
+                resolve(reader.result);
+            };
+            reader.onerror = function (error) {
+                reject(error);
+            };
+        });
+
+        return resultat;
+    }
+
+    async function onFormDataChange(evenement) {
         //On récupère le nom du champ
         const name = evenement.target.name;
         //On récupère la valeur du champ
@@ -58,8 +74,10 @@ function FormFilm() {
             setFormData(donneeModifiee);
         } else if (name === "titreVignette") {
             const nomFichier = evenement.target.files[0].name;
-            const donneeModifiee = { ...formData, titreVignette: nomFichier };
             // console.log(evenement.target, nomFichier);
+            const base64 = await getBase64(evenement.target.files[0]);
+            setVignette(base64);
+            const donneeModifiee = { ...formData, titreVignette: nomFichier };
             setFormData(donneeModifiee);
         } else {
             //On clone la donnee dans un nouvel objet
@@ -108,6 +126,7 @@ function FormFilm() {
                 genres: [],
                 titreVignette: "vide.jpg",
             });
+            setVignette("");
             //Reinit l'état de validité
             setFormValidity("invalid");
             //navigate("/"); //Redirige vers une page en particulier
@@ -201,6 +220,11 @@ function FormFilm() {
                             accept=".jpg,.jpeg,.png,.webp"
                             onChange={onFormDataChange}
                         />
+                        {vignette !== "" ? (
+                            <img className="vignette" src={vignette} alt={formData.titreVignette} />
+                        ) : (
+                            ""
+                        )}
                     </div>
                     <input
                         type="submit"
